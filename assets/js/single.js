@@ -1,10 +1,28 @@
 var issueContainerEl = document.querySelector("#issues-container");
 var limitWarningEl = document.querySelector("#limit-warning");
+var repoNameEl = document.querySelector("#repo-name");
+
+var getRepoName = function () {
+    // find the query parameters of repo URL passed from index.html
+    var queryString = document.location.search;
+
+    // parse queryString to get repo name passed from index.html
+    var repoName = queryString.split("=")[1];
+    if (repoName) {
+        // display name of repo and run function to retrieve and display issues/pull request
+        repoNameEl.textContent = repoName;
+
+        getRepoIssues(repoName);
+    }
+    else {
+        // if no repo was given, redirect to homepage
+        document.location.replace("./index.html");
+    }
+};
+
 
 var getRepoIssues = function (repo) {
-    console.log(repo);
     var apiUrl = "https://api.github.com/repos/" + repo + "/issues?direction=asc";
-    console.log(apiUrl);
     fetch(apiUrl).then(function (response) {
         // request was successful
         if (response.ok) {
@@ -19,7 +37,8 @@ var getRepoIssues = function (repo) {
             });
         }
         else {
-            alert("There was a problem with your request!");
+            // if not succcessful, redirect to homepage
+            document.location.replace("./index.html");
         }
     });
 };
@@ -42,7 +61,6 @@ var displayIssues = function (issues) {
         // create span to hold issue title
         var titleEl = document.createElement("span");
         titleEl.textContent = issues[i].title;
-        console.log(titleEl)
         // append to container element
         issueEl.appendChild(titleEl);
 
@@ -70,11 +88,12 @@ var displayWarning = function (repo) {
 
     var linkEl = document.createElement("a");
     linkEl.textContent = "See More Issues on GitHub.com";
-    linkEl.setAttribute("href", "https://github.com/"+ repo +"/issues");
+    linkEl.setAttribute("href", "https://github.com/" + repo + "/issues");
     linkEl.setAttribute("target", "_blank");
 
     // append to warning container
     limitWarningEl.appendChild(linkEl);
 };
 
-getRepoIssues("facebook/react");
+
+getRepoName();
